@@ -1,6 +1,8 @@
-const fs = require("fs").promises; // Use fs.promises for promise-based file operations
-const ISO6391 = require("iso-639-1");
-const inputListPath = "./languages.doc.json";
+import { promises as fs } from "fs";
+import ISO6391 from "iso-639-1";
+import { iso6393 } from "iso-639-3";
+import { iso6392 } from "iso-639-2";
+const inputListPath = "./optionIds-languages.json";
 
 async function main() {
   try {
@@ -22,11 +24,20 @@ async function loadFile(filePath) {
 }
 
 const checkNoISO = (languages) => {
-  Object.keys(languages).forEach((language) => {
-    if (!ISO6391.validate(language)) {
-      console.log(`${language} does not exists in iso 639`);
-    }
-  });
+  const isoLangs = [
+    ...iso6393.map((isoLang) => isoLang.iso6393),
+    ...iso6392.map((isoLang) => isoLang.iso6391),
+    ...iso6392.map((isoLang) => isoLang.iso6392B),
+    ...iso6393.map((isoLang) => isoLang.iso6391),
+  ];
+
+  console.log(isoLangs.includes("dua"));
+  const langsNoIso = languages.filter(
+    (lang) =>
+      !isoLangs.includes(lang.toLowerCase()) &&
+      !ISO6391.validate(lang.toLowerCase())
+  );
+  console.log(JSON.stringify(langsNoIso));
 };
 
 main();
